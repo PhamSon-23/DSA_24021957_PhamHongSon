@@ -1,203 +1,129 @@
 #include <iostream>
 using namespace std;
-struct Node {
-    int data;
-    Node *truoc, *sau;
+
+#define MAX 100
+
+struct List {
+    int a[MAX];
+    int n;
 };
-Node* taoNode(int x) {
-    Node *p = new Node;
-    p->data = x;
-    p->truoc = NULL;
-    p->sau = NULL;
-    return p;
-}
-// chen vao dau
-void chenDau(Node *&dau, Node *&cuoi, int x) {
-    Node *p = taoNode(x);
-    if (dau == NULL) {
-        dau = cuoi = p;
-    } else {
-        p->sau = dau;
-        dau->truoc = p;
-        dau = p;
-    }
-}
-// chen vao cuoi
-void chenCuoi(Node *&dau, Node *&cuoi, int x) {
-    Node *p = taoNode(x);
-    if (cuoi == NULL) {
-        dau = cuoi = p;
-    } else {
-        cuoi->sau = p;
-        p->truoc = cuoi;
-        cuoi = p;
-    }
-}
-// Truy cap phan tu tai vi tri
-void truyCap(Node *dau, int viTri) {
-    Node *p = dau;
-    int i = 0;
-    while (p != NULL && i < viTri) {
-        p = p->sau;
-        i++;
-    }
-    if (p == NULL)
-        cout << "Vi tri khong ton tai\n";
-    else
-        cout << "Gia tri: " << p->data << endl;
+
+void init(List &L) {
+    L.n = 0;
 }
 
-// chen vao vi tri
-void chenViTri(Node *&dau, Node *&cuoi, int viTri, int x) {
-    if (viTri == 0) {
-        chenDau(dau, cuoi, x);
-        return;
-    }
-
-    Node *p = dau;
-    int i = 0;
-
-    while (p != NULL && i < viTri - 1) {
-        p = p->sau;
-        i++;
-    }
-
-    if (p == NULL) {
-        cout << "Vi tri khong hop le\n";
-        return;
-    }
-
-    if (p == cuoi) {
-        chenCuoi(dau, cuoi, x);
-        return;
-    }
-
-    Node *q = taoNode(x);
-    q->sau = p->sau;
-    q->truoc = p;
-    p->sau->truoc = q;
-    p->sau = q;
-}
-
-// Xoa phan tu dau
-void xoaDau(Node *&dau, Node *&cuoi) {
-    if (dau == NULL) return;
-    Node *p = dau;
-    dau = dau->sau;
-
-    if (dau == NULL)
-        cuoi = NULL;
-    else
-        dau->truoc = NULL;
-
-    delete p;
-}
-// xoa phan tu cuoi
-void xoaCuoi(Node *&dau, Node *&cuoi) {
-    if (cuoi == NULL) return;
-
-    Node *p = cuoi;
-    cuoi = cuoi->truoc;
-
-    if (cuoi == NULL)
-        dau = NULL;
-    else
-        cuoi->sau = NULL;
-
-    delete p;
-}
-// xoa tai vi tri
-void xoaViTri(Node *&dau, Node *&cuoi, int viTri) {
-    if (dau == NULL) return;
-
-    if (viTri == 0) {
-        xoaDau(dau, cuoi);
-        return;
-    }
-    Node *p = dau;
-    int i = 0;
-    while (p != NULL && i < viTri) {
-        p = p->sau;
-        i++;
-    }
-    if (p == NULL) {
-        cout << "Vi tri khong hop le\n";
-        return;
-    }
-    if (p == cuoi) {
-        xoaCuoi(dau, cuoi);
-        return;
-    }
-    p->truoc->sau = p->sau;
-    p->sau->truoc = p->truoc;
-    delete p;
-}
-
-// duyet xuoi
-void duyetXUoi(Node *dau) {
-    Node *p = dau;
-
-    while (p != NULL) {
-        cout << p->data << " ";
-        p = p->sau;
-    }
+// Duyet xuoi
+void display(List L) {
+    for (int i = 0; i < L.n; i++)
+        cout << L.a[i] << " ";
     cout << endl;
 }
 
-// duyet nguoc
-void duyetNguoc(Node *cuoi) {
-    Node *p = cuoi;
-
-    while (p != NULL) {
-        cout << p->data << " ";
-        p = p->truoc;
-    }
+// Duyet nguoc
+void displayReverse(List L) {
+    for (int i = L.n - 1; i >= 0; i--)
+        cout << L.a[i] << " ";
     cout << endl;
+}
+
+// Truy cap phan tu tai vi tri i
+int get(List L, int i) {
+    if (i < 0 || i >= L.n) {
+        cout << "Vi tri khong hop le!\n";
+        return -1;
+    }
+    return L.a[i];
+}
+
+// Chen dau
+void insertFirst(List &L, int x) {
+    if (L.n == MAX) return;
+
+    for (int i = L.n; i > 0; i--)
+        L.a[i] = L.a[i - 1];
+
+    L.a[0] = x;
+    L.n++;
+}
+
+// Chen cuoi
+void insertLast(List &L, int x) {
+    if (L.n == MAX) return;
+
+    L.a[L.n] = x;
+    L.n++;
+}
+
+// Chen tai vi tri i
+void insertAt(List &L, int x, int i) {
+    if (L.n == MAX || i < 0 || i > L.n) return;
+
+    for (int j = L.n; j > i; j--)
+        L.a[j] = L.a[j - 1];
+
+    L.a[i] = x;
+    L.n++;
+}
+
+// Xoa dau
+void deleteFirst(List &L) {
+    if (L.n == 0) return;
+
+    for (int i = 0; i < L.n - 1; i++)
+        L.a[i] = L.a[i + 1];
+
+    L.n--;
+}
+
+// Xoa cuoi
+void deleteLast(List &L) {
+    if (L.n == 0) return;
+
+    L.n--;
+}
+
+// Xoa tai vi tri i
+void deleteAt(List &L, int i) {
+    if (i < 0 || i >= L.n) return;
+
+    for (int j = i; j < L.n - 1; j++)
+        L.a[j] = L.a[j + 1];
+
+    L.n--;
 }
 
 int main() {
-    Node *dau = NULL;
-    Node *cuoi = NULL;
+    List L;
+    init(L);
 
-    chenCuoi(dau, cuoi, 10);
-    chenCuoi(dau, cuoi, 20);
-    chenCuoi(dau, cuoi, 30);
+    insertLast(L, 10);
+    insertLast(L, 20);
+    insertLast(L, 30);
+    insertFirst(L, 5);
 
-    cout << "Danh sach ban dau: ";
-    duyetXUoi(dau);
+    cout << "Danh sach: ";
+    display(L);
 
-    cout << "Truy cap vi tri 1: ";
-    truyCap(dau, 1);
+    insertAt(L, 15, 2);
+    cout << "Sau khi chen 15 vao vi tri 2: ";
+    display(L);
 
-    chenDau(dau, cuoi, 5);
-    cout << "Sau khi chen dau: ";
-    duyetXUoi(dau);
+    cout << "Phan tu tai vi tri 2: " << get(L, 2) << endl;
 
-    chenCuoi(dau, cuoi, 40);
-    cout << "Sau khi chen cuoi: ";
-    duyetXUoi(dau);
-
-    chenViTri(dau, cuoi, 2, 15);
-    cout << "Sau khi chen vi tri 2: ";
-    duyetXUoi(dau);
-
-    xoaDau(dau, cuoi);
+    deleteFirst(L);
     cout << "Sau khi xoa dau: ";
-    duyetXUoi(dau);
+    display(L);
 
-    xoaCuoi(dau, cuoi);
+    deleteLast(L);
     cout << "Sau khi xoa cuoi: ";
-    duyetXUoi(dau);
+    display(L);
 
-    xoaViTri(dau, cuoi, 1);
+    deleteAt(L, 1);
     cout << "Sau khi xoa vi tri 1: ";
-    duyetXUoi(dau);
-
-    cout << "Duyet xuoi: ";
-    duyetXUoi(dau);
+    display(L);
 
     cout << "Duyet nguoc: ";
-    duyetNguoc(cuoi);
+    displayReverse(L);
 
     return 0;
 }
